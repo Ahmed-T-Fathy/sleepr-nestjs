@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  reservations:
+    build: 
+      context: .
+      dockerfile: ./apps/reservations/Dockerfile
+      target: development
+    command: npm run start:dev reservations
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/sleepr
+      - PORT=3000
+      - AUTH_HOST=auth
+      - AUTH_PORT=3002
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongo
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: npm run start:dev auth
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/sleepr
+      - JWT_SECRET=your_jwt_secret
+      - JWT_EXPIRATION=3600
+      - HTTP_PORT=3001
+      - TCP_PORT=3002
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+volumes:
+  mongo-data:
