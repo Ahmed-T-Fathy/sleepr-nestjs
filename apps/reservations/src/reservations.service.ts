@@ -1,20 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsRepository } from './models/reservation.repository';
 import mongoose from 'mongoose';
+import { PAYMENTS_SERVICE } from '@app/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { catchError, map } from 'rxjs';
 
 @Injectable()
 export class ReservationsService {
   constructor(
     private readonly reservationsRepository: ReservationsRepository,
+    @Inject(PAYMENTS_SERVICE) private readonly paymentsClient: ClientProxy,
   ) {}
   async create(createReservationDto: CreateReservationDto) {
-    return await this.reservationsRepository.create({
-      ...createReservationDto,
-      timestamp: new Date(),
-      userId: '123',
-    });
+    try {
+      return this.paymentsClient
+        .send('create-charge', createReservationDto.charge)
+        .pipe(
+          map((res) => {
+            return this.reservationsRepository.create({
+              ...createReservationDto,
+              invoiceId: res.id,
+              timestamp: new Date(),
+              userId: '123',
+            });
+          }),
+          catchError((error) => {
+            console.error(`Error creating charge: ${error.message}`);
+            throw new InternalServerErrorException(
+              'Payment processing failed. Please try again.',
+            );
+          }),
+        ); // Return the observable
+    } catch (error) {
+      console.error(`Error creating reservation: ${error.message}`);
+      throw new InternalServerErrorException('Failed to create reservation');
+    }
   }
 
   async findAll() {

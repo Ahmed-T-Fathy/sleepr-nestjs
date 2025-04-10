@@ -13,7 +13,7 @@ async function bootstrap() {
     transport: Transport.TCP,
     options: {
       host: '0.0.0.0',
-      port: configService.get<number>('TCP_PORT'),
+      port: configService.getOrThrow<number>('TCP_PORT'),
     },
   });
   app.use(cookieParser());
