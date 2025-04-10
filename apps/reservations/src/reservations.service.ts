@@ -7,7 +7,7 @@ import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsRepository } from './models/reservation.repository';
 import mongoose from 'mongoose';
-import { PAYMENTS_SERVICE } from '@app/common';
+import { PAYMENTS_SERVICE, UserDTO } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { catchError, map } from 'rxjs';
 
@@ -17,17 +17,20 @@ export class ReservationsService {
     private readonly reservationsRepository: ReservationsRepository,
     @Inject(PAYMENTS_SERVICE) private readonly paymentsClient: ClientProxy,
   ) {}
-  async create(createReservationDto: CreateReservationDto) {
+  async create(
+    createReservationDto: CreateReservationDto,
+    { email, _id: userId }: UserDTO,
+  ) {
     try {
       return this.paymentsClient
-        .send('create-charge', createReservationDto.charge)
+        .send('create-charge', { ...createReservationDto.charge, email })
         .pipe(
           map((res) => {
             return this.reservationsRepository.create({
               ...createReservationDto,
               invoiceId: res.id,
               timestamp: new Date(),
-              userId: '123',
+              userId: userId,
             });
           }),
           catchError((error) => {

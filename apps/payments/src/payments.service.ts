@@ -1,7 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
-import { CreateChargeDto } from '@app/common';
+import { NOTIFICATIONS_SERVICE } from '@app/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { PaymentsCreateChargeDto } from '../dto/payments-create-charge.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -11,9 +13,13 @@ export class PaymentsService {
       apiVersion: '2025-03-31.basil',
     },
   );
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(NOTIFICATIONS_SERVICE)
+    private readonly notificationsService: ClientProxy,
+  ) {}
 
-  async crearteCharge({ card, amount }: CreateChargeDto) {
+  async crearteCharge({ card, amount, email }: PaymentsCreateChargeDto) {
     console.log(`****************data************`);
     console.log(card);
     console.log(amount);
@@ -32,6 +38,12 @@ export class PaymentsService {
         payment_method: paymentMethod.id, // Attach the payment method
         confirm: true,
         payment_method_types: ['card'],
+      });
+
+      this.notificationsService.emit('notify_email', {
+        email,
+        subject: 'Payment Confirmation',
+        body: `Your payment of $${amount} was successful!`,
       });
 
       return {

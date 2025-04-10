@@ -11,7 +11,7 @@ import {
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
-import { CurrentUser, JwtAuthGuard } from '@app/common';
+import { CurrentUser, JwtAuthGuard, UserDTO } from '@app/common';
 
 @Controller('reservations')
 export class ReservationsController {
@@ -21,10 +21,10 @@ export class ReservationsController {
   @Post()
   create(
     @Body() createReservationDto: CreateReservationDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserDTO,
   ) {
     console.log(`user: ${JSON.stringify(user)}`);
-    return this.reservationsService.create(createReservationDto);
+    return this.reservationsService.create(createReservationDto, user);
   }
 
   @Get()
