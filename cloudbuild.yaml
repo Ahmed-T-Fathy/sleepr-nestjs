@@ -1,27 +1,25 @@
-# we will toke the advatage of th gcr.io builder as pre-build builder
-# it allow us to build and tag and push docker images directly to google cloud build
+# we will take advantage of the gcr.io builder as a pre-build builder
+# it allows us to build, tag, and push docker images directly to Google Cloud Build
 
-#reservations
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/reservations/production', '-f','apps/reservations/Dockerfile', '.']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'us-east4-docker.pkg.dev/sleepr-456713/reservations/production']
+steps:
+  # reservations
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/reservations/production', '-f','apps/reservations/Dockerfile', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-east4-docker.pkg.dev/sleepr-456713/reservations/production']
 
-#payments
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/payments/production', '-f','apps/payments/Dockerfile', '.']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'us-east4-docker.pkg.dev/sleepr-456713/payments/production']
+  # payments
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/payments/production', '-f','apps/payments/Dockerfile', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-east4-docker.pkg.dev/sleepr-456713/payments/production']
 
-#auth
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/auth/production', '-f','apps/auth/Dockerfile', '.']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'us-east4-docker.pkg.dev/sleepr-456713/auth/production']
+  # auth
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/auth/production', '-f','apps/auth/Dockerfile', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-east4-docker.pkg.dev/sleepr-456713/auth/production']
 
-#notifications
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/notifications/production', '-f','apps/notifications/Dockerfile', '.']
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'us-east4-docker.pkg.dev/sleepr-456713/notifications/production']
-  
+  # notifications
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us-east4-docker.pkg.dev/sleepr-456713/notifications/production',
