@@ -3,12 +3,16 @@ FROM node:alpine AS development
 WORKDIR  /usr/src/app
 
 COPY package*.json ./
+COPY tsconfig.json tsconfig.json
+COPY nest-cli.json nest-cli.json
+ 
 
-RUN npm install
+COPY apps/auth apps/auth
+COPY libs libs
 
-COPY . .
+RUN npm install -r
 
-RUN npm run build
+RUN npm run build auth
 
 FROM node:alpine AS production
 
